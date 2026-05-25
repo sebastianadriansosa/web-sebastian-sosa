@@ -11,7 +11,7 @@
    ========================================= */
 
 // ⚠️ REEMPLAZÁ ESTO CON TU API KEY DE GEMINI
-const GEMINI_API_KEY = "AIzaSyAGyto9fwZPrSgqUO-iDbxfC6duREgvC3k";
+const GEMINI_API_KEY = "AIzaSyBLQcijkqlAl9SaDQvzPVUimXbXy1Pzids";
 
 // =========================================
 // CONTEXTO COMPLETO DEL PORTFOLIO
