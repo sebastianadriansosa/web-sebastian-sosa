@@ -680,12 +680,11 @@ async function handleSend() {
   showTyping();
 
   // Modelos en orden de preferencia — AIDA prueba cada uno hasta encontrar uno disponible
-  const MODELS = [
-    "gemini-2.5-flash",
-    "gemini-2.0-flash",
-    "gemini-2.0-flash-lite",
-    "gemini-2.0-flash-001",
-  ];
+   const MODELS = [
+     "gemini-2.0-flash",
+     "gemini-1.5-flash",
+     "gemini-1.5-pro"
+   ];
 
   const body = {
     system_instruction: { parts: [{ text: SEBASTIAN_CONTEXT }] },
