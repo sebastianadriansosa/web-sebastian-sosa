@@ -11,7 +11,7 @@
    ========================================= */
 
 // ⚠️ REEMPLAZÁ ESTO CON TU API KEY DE GEMINI
-const GEMINI_API_KEY = "AIzaSyBLQcijkqlAl9SaDQvzPVUimXbXy1Pzids";
+const GEMINI_API_KEY = "https://aida-proxy.ssosa17.workers.dev";
 
 // =========================================
 // CONTEXTO COMPLETO DEL PORTFOLIO
