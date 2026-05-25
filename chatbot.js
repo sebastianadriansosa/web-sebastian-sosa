@@ -658,10 +658,11 @@ async function handleSend() {
   addUserMessage(text);
   chatHistory.push({ role: "user", parts: [{ text }] });
 
+  // Deshabilitamos controles temporalmente para evitar spam
   sendBtn.disabled = true;
+  input.disabled = true;
   showTyping();
 
-  // El cuerpo JSON unificado que va hacia tu Cloudflare Worker
   const body = {
     system_instruction: { parts: [{ text: SEBASTIAN_CONTEXT }] },
     contents: chatHistory,
@@ -669,7 +670,6 @@ async function handleSend() {
   };
 
   try {
-    // LLAMADA DIRECTA AL PROXY (Él se encarga de rutear a Google con la API key oculta)
     const response = await fetch(PROXY_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -695,7 +695,12 @@ async function handleSend() {
         ? `AIDA no pudo conectarse. Detalle: ${err.message}`
         : `AIDA couldn't connect. Detail: ${err.message}`
     );
-  } // Se quitó el bloqueo redundante de botones para mantener la fluidez
+  } finally {
+    // Rehabilitación garantizada de la interfaz de usuario
+    sendBtn.disabled = false;
+    input.disabled = false;
+    setTimeout(() => input.focus(), 50);
+  }
 }
 
 if (document.readyState === 'loading') {
