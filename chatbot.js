@@ -18,10 +18,11 @@ const GEMINI_API_KEY = "AIzaSyDOsbtYbIHbZFjAfJLnAGEIi7gRnDz0jZY";
 // (extraído automáticamente de tu web)
 // =========================================
 const SEBASTIAN_CONTEXT = `
-Sos un asistente virtual del portfolio profesional de Sebastian Adrián Sosa.
-Respondés preguntas sobre su perfil, experiencia, habilidades y proyectos.
+Tu nombre es AIDA (AI Interactive Digital Assistant), el asistente virtual del portfolio profesional de Sebastian Adrián Sosa.
+Si alguien te pregunta cómo te llamás, respondés que sos AIDA.
+Respondés preguntas sobre el perfil, experiencia, habilidades y proyectos de Sebastian.
 Detectás automáticamente si el visitante escribe en inglés o español y respondés en el mismo idioma.
-Sos profesional, conciso y amigable. Nunca inventás información que no esté en el contexto.
+Sos profesional, concisa y amigable. Nunca inventás información que no esté en el contexto.
 Si no sabés algo, decís que pueden contactar a Sebastian directamente.
 
 === INFORMACIÓN DE SEBASTIAN SOSA ===
@@ -507,7 +508,7 @@ function createWidget() {
   // Toggle button
   const toggle = document.createElement('button');
   toggle.id = 'ss-chat-toggle';
-  toggle.title = 'Chat with Sebastian\'s AI';
+  toggle.title = 'Chat with AIDA';
   toggle.innerHTML = `
     <span class="chat-badge">AI</span>
     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -520,19 +521,19 @@ function createWidget() {
   const win = document.createElement('div');
   win.id = 'ss-chat-window';
   win.setAttribute('role', 'dialog');
-  win.setAttribute('aria-label', 'Sebastian Sosa AI Assistant');
+  win.setAttribute('aria-label', 'AIDA — Sebastian Sosa AI Assistant');
   win.innerHTML = `
     <div id="ss-chat-header">
-      <div class="ss-avatar">SS</div>
+      <div class="ss-avatar">AI</div>
       <div class="ss-header-info">
-        <div class="ss-header-name">[SS] AI Assistant</div>
-        <div class="ss-header-status">● Online · Powered by Gemini</div>
+        <div class="ss-header-name">AIDA</div>
+        <div class="ss-header-status">● Online · AI Interactive Digital Assistant</div>
       </div>
       <button id="ss-chat-close" aria-label="Close chat">✕</button>
     </div>
     <div id="ss-chat-messages"></div>
     <div id="ss-chat-footer">
-      <textarea id="ss-chat-input" placeholder="Ask about Sebastian..." rows="1" maxlength="500"></textarea>
+      <textarea id="ss-chat-input" placeholder="Ask AIDA anything..." rows="1" maxlength="500"></textarea>
       <button id="ss-chat-send" aria-label="Send message">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
           <path d="M2 21l21-9L2 3v7l15 2-15 2z"/>
@@ -562,7 +563,7 @@ function createWidget() {
 
   // Welcome message
   addBotMessage(
-    "Hi! I'm Sebastian's AI assistant. Ask me anything about his experience, skills, certifications or projects — in English or Spanish 🤙",
+    "Hi! I'm AIDA — Sebastian's AI Interactive Digital Assistant. Ask me anything about his experience, skills, certifications or projects — in English or Spanish 🤙",
     true
   );
 }
@@ -662,7 +663,7 @@ async function handleSend() {
 
   // Check API key
   if (GEMINI_API_KEY === "TU_API_KEY_AQUI") {
-    addBotMessage("⚠️ API key not configured. Edit chatbot.js and replace 'TU_API_KEY_AQUI' with your Gemini API key from aistudio.google.com");
+    addBotMessage("⚠️ AIDA no está configurada aún. Editá chatbot.js y reemplazá 'TU_API_KEY_AQUI' con tu Gemini API key de aistudio.google.com");
     return;
   }
 
