@@ -4,7 +4,7 @@
    =========================================
    
    INSTRUCCIONES DE USO:
-   1. Reemplazá "TU_API_KEY_AQUI" con tu Gemini API key
+   1. Reemplazá "AIzaSyDOsbtYbIHbZFjAfJLnAGEIi7gRnDz0jZY" con tu Gemini API key
    2. Copiá este archivo a tu repositorio de GitHub
    3. Agregá esta línea ANTES de </body> en tu index.html:
       <script src="chatbot.js"></script>
@@ -662,8 +662,8 @@ async function handleSend() {
   if (!text || sendBtn.disabled) return;
 
   // Check API key
-  if (GEMINI_API_KEY === "TU_API_KEY_AQUI") {
-    addBotMessage("⚠️ AIDA no está configurada aún. Editá chatbot.js y reemplazá 'TU_API_KEY_AQUI' con tu Gemini API key de aistudio.google.com");
+  if (GEMINI_API_KEY === "AIzaSyDOsbtYbIHbZFjAfJLnAGEIi7gRnDz0jZY") {
+    addBotMessage("⚠️ AIDA no está configurada aún. Editá chatbot.js y reemplazá 'AIzaSyDOsbtYbIHbZFjAfJLnAGEIi7gRnDz0jZY' con tu Gemini API key de aistudio.google.com");
     return;
   }
 
