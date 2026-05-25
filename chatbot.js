@@ -10,8 +10,8 @@
       <script src="chatbot.js"></script>
    ========================================= */
 
-// ⚠️ REEMPLAZÁ ESTO CON TU API KEY DE GEMINI
-const GEMINI_API_KEY = "https://aida-proxy.ssosa17.workers.dev";
+// URL de tu proxy en Cloudflare
+const PROXY_URL = "https://aida-proxy.ssosa17.workers.dev";
 
 // =========================================
 // CONTEXTO COMPLETO DEL PORTFOLIO
@@ -661,11 +661,11 @@ async function handleSend() {
   const text = input.value.trim();
   if (!text || sendBtn.disabled) return;
 
-  // Check API key
-  if (GEMINI_API_KEY === "TU_API_KEY_AQUI") {
-    addBotMessage("⚠️ AIDA no está configurada aún. Editá chatbot.js y reemplazá 'TU_API_KEY_AQUI' con tu Gemini API key de aistudio.google.com");
-    return;
-  }
+   // Check API key
+   if (GEMINI_API_KEY === "TU_API_KEY_AQUI") {
+     addBotMessage("⚠️ AIDA no está configurada aún...");
+   return;
+   }
 
   // Clear input
   input.value = '';
@@ -697,14 +697,18 @@ async function handleSend() {
     let reply = null;
     let lastError = null;
 
-    for (const model of MODELS) {
+for (const model of MODELS) {
       try {
-        const response = await fetch(
-          `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${GEMINI_API_KEY}`,
-          { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) }
-        );
+        // Le pegamos directamente a tu Cloudflare Worker
+        const response = await fetch(PROXY_URL, { 
+          method: 'POST', 
+          headers: { 'Content-Type': 'application/json' }, 
+          body: JSON.stringify(body) 
+        });
+        
         const data = await response.json();
-        if (!response.ok) throw new Error(data.error?.message || 'API error');
+        if (!response.ok) throw new Error(data.error || 'API error');
+        
         reply = data.candidates?.[0]?.content?.parts?.[0]?.text || null;
         if (reply) {
           console.log('✅ AIDA modelo activo:', model);
