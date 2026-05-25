@@ -1,6 +1,6 @@
 /* =========================================
    SEBASTIAN SOSA — AI CHATBOT WIDGET
-   Powered by Google Gemini API (Free)
+   Powered by Google Gemini API via Cloudflare Proxy
    =========================================
    
    INSTRUCCIONES DE USO:
@@ -9,12 +9,11 @@
       <script src="chatbot.js"></script>
    ========================================= */
 
-// URL de tu proxy en Cloudflare
+// URL ÚNICA DE TU PROXY EN CLOUDFLARE
 const PROXY_URL = "https://aida-proxy.ssosa17.workers.dev";
 
 // =========================================
 // CONTEXTO COMPLETO DEL PORTFOLIO
-// (extraído automáticamente de tu web)
 // =========================================
 const SEBASTIAN_CONTEXT = `
 Tu nombre es AIDA (AI Interactive Digital Assistant), el asistente virtual del portfolio profesional de Sebastian Adrián Sosa.
@@ -95,7 +94,7 @@ EXPERIENCIA LABORAL:
    - Workshops y training para clientes
 
 2. DirMOD S.A. (Jun 2022 – Jul 2023) — Solution Design Presales — Buenos Aires, Argentina
-   - Reuniones técnicas, presentations y demos para clientes corporativos
+   - Reuniones técnicas, presentaciones y demos para clientes corporativos
    - Propuestas técnicas, specs, respuestas a RFIs y RFPs
    - Relaciones estratégicas con cuentas clave como trusted advisor
 
@@ -499,12 +498,10 @@ function detectLang(text) {
 }
 
 function createWidget() {
-  // Inject styles
   const style = document.createElement('style');
   style.textContent = CHATBOT_STYLES;
   document.head.appendChild(style);
 
-  // Toggle button
   const toggle = document.createElement('button');
   toggle.id = 'ss-chat-toggle';
   toggle.title = 'Chat with AIDA';
@@ -516,7 +513,6 @@ function createWidget() {
   `;
   document.body.appendChild(toggle);
 
-  // Chat window
   const win = document.createElement('div');
   win.id = 'ss-chat-window';
   win.setAttribute('role', 'dialog');
@@ -543,7 +539,6 @@ function createWidget() {
   `;
   document.body.appendChild(win);
 
-  // Events
   toggle.addEventListener('click', toggleChat);
   document.getElementById('ss-chat-close').addEventListener('click', toggleChat);
   document.getElementById('ss-chat-send').addEventListener('click', handleSend);
@@ -554,13 +549,11 @@ function createWidget() {
     }
   });
 
-  // Auto-resize textarea
   document.getElementById('ss-chat-input').addEventListener('input', function () {
     this.style.height = 'auto';
     this.style.height = Math.min(this.scrollHeight, 80) + 'px';
   });
 
-  // Welcome message
   addBotMessage(
     "Hi! I'm AIDA — Sebastian's AI Interactive Digital Assistant. Ask me anything about his experience, skills, certifications or projects — in English or Spanish 🤙",
     true
@@ -578,7 +571,6 @@ function toggleChat() {
 
 function addBotMessage(text, showSuggestions = false) {
   const msgs = document.getElementById('ss-chat-messages');
-
   const div = document.createElement('div');
   div.className = 'ss-msg bot';
 
@@ -660,25 +652,16 @@ async function handleSend() {
   const text = input.value.trim();
   if (!text || sendBtn.disabled) return;
 
-  // Clear input
   input.value = '';
   input.style.height = 'auto';
 
-  // Add user message
   addUserMessage(text);
   chatHistory.push({ role: "user", parts: [{ text }] });
 
-  // Disable send
   sendBtn.disabled = true;
   showTyping();
 
-  // Modelos en orden de preferencia — AIDA prueba cada uno hasta encontrar uno disponible
-  const MODELS = [
-    "gemini-2.0-flash",
-    "gemini-1.5-flash",
-    "gemini-1.5-pro"
-  ];
-
+  // El cuerpo JSON unificado que va hacia tu Cloudflare Worker
   const body = {
     system_instruction: { parts: [{ text: SEBASTIAN_CONTEXT }] },
     contents: chatHistory,
@@ -686,33 +669,18 @@ async function handleSend() {
   };
 
   try {
-    let reply = null;
-    let lastError = null;
+    // LLAMADA DIRECTA AL PROXY (Él se encarga de rutear a Google con la API key oculta)
+    const response = await fetch(PROXY_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    });
 
-    for (const model of MODELS) {
-      try {
-        // Le pegamos directamente a tu Cloudflare Worker
-        const response = await fetch(PROXY_URL, { 
-          method: 'POST', 
-          headers: { 'Content-Type': 'application/json' }, 
-          body: JSON.stringify(body) 
-        });
-        
-        const data = await response.json();
-        if (!response.ok) throw new Error(data.error?.message || 'API error');
-        
-        reply = data.candidates?.[0]?.content?.parts?.[0]?.text || null;
-        if (reply) {
-          console.log('✅ AIDA modelo activo:', model);
-          break;
-        }
-      } catch (e) {
-        console.warn(`⚠️ Modelo ${model} no disponible:`, e.message);
-        lastError = e;
-      }
-    }
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.error?.message || 'API error');
 
-    if (!reply) throw lastError || new Error('No model available');
+    const reply = data.candidates?.[0]?.content?.parts?.[0]?.text || null;
+    if (!reply) throw new Error('No content returned from AI');
 
     chatHistory.push({ role: "model", parts: [{ text: reply }] });
     removeTyping();
@@ -724,18 +692,12 @@ async function handleSend() {
     const isEs = detectLang(text) === 'es';
     addBotMessage(
       isEs
-        ? `AIDA no pudo conectarse. Error: ${err.message}. Verificá tu API key en aistudio.google.com`
-        : `AIDA couldn't connect. Error: ${err.message}. Check your API key at aistudio.google.com`
+        ? `AIDA no pudo conectarse. Detalle: ${err.message}`
+        : `AIDA couldn't connect. Detail: ${err.message}`
     );
-  } finally {
-    sendBtn.disabled = false;
-    input.focus();
-  }
+  } // Se quitó el bloqueo redundante de botones para mantener la fluidez
 }
 
-// =========================================
-// INICIALIZACIÓN
-// =========================================
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', createWidget);
 } else {
