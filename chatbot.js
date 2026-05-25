@@ -4,9 +4,8 @@
    =========================================
    
    INSTRUCCIONES DE USO:
-   1. Reemplazá "AIzaSyDOsbtYbIHbZFjAfJLnAGEIi7gRnDz0jZY" con tu Gemini API key
-   2. Copiá este archivo a tu repositorio de GitHub
-   3. Agregá esta línea ANTES de </body> en tu index.html:
+   1. Copiá este archivo a tu repositorio de GitHub
+   2. Agregá esta línea ANTES de </body> en tu index.html:
       <script src="chatbot.js"></script>
    ========================================= */
 
@@ -96,7 +95,7 @@ EXPERIENCIA LABORAL:
    - Workshops y training para clientes
 
 2. DirMOD S.A. (Jun 2022 – Jul 2023) — Solution Design Presales — Buenos Aires, Argentina
-   - Reuniones técnicas, presentaciones y demos para clientes corporativos
+   - Reuniones técnicas, presentations y demos para clientes corporativos
    - Propuestas técnicas, specs, respuestas a RFIs y RFPs
    - Relaciones estratégicas con cuentas clave como trusted advisor
 
@@ -661,12 +660,6 @@ async function handleSend() {
   const text = input.value.trim();
   if (!text || sendBtn.disabled) return;
 
-   // Check API key
-   if (GEMINI_API_KEY === "TU_API_KEY_AQUI") {
-     addBotMessage("⚠️ AIDA no está configurada aún...");
-   return;
-   }
-
   // Clear input
   input.value = '';
   input.style.height = 'auto';
@@ -680,11 +673,11 @@ async function handleSend() {
   showTyping();
 
   // Modelos en orden de preferencia — AIDA prueba cada uno hasta encontrar uno disponible
-   const MODELS = [
-     "gemini-2.0-flash",
-     "gemini-1.5-flash",
-     "gemini-1.5-pro"
-   ];
+  const MODELS = [
+    "gemini-2.0-flash",
+    "gemini-1.5-flash",
+    "gemini-1.5-pro"
+  ];
 
   const body = {
     system_instruction: { parts: [{ text: SEBASTIAN_CONTEXT }] },
@@ -696,7 +689,7 @@ async function handleSend() {
     let reply = null;
     let lastError = null;
 
-for (const model of MODELS) {
+    for (const model of MODELS) {
       try {
         // Le pegamos directamente a tu Cloudflare Worker
         const response = await fetch(PROXY_URL, { 
@@ -706,7 +699,7 @@ for (const model of MODELS) {
         });
         
         const data = await response.json();
-        if (!response.ok) throw new Error(data.error || 'API error');
+        if (!response.ok) throw new Error(data.error?.message || 'API error');
         
         reply = data.candidates?.[0]?.content?.parts?.[0]?.text || null;
         if (reply) {
