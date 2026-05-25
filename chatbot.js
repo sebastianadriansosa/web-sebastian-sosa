@@ -11,7 +11,7 @@
    ========================================= */
 
 // ⚠️ REEMPLAZÁ ESTO CON TU API KEY DE GEMINI
-const GEMINI_API_KEY = "AIzaSyBPJGcHDdX49tCh3TcarMm8T5BDQGGOq9w";
+const GEMINI_API_KEY = "AIzaSyAiZkTuSlFO3f_G-Bv4_UIjr1avOeNKiz4";
 
 // =========================================
 // CONTEXTO COMPLETO DEL PORTFOLIO
@@ -662,8 +662,8 @@ async function handleSend() {
   if (!text || sendBtn.disabled) return;
 
   // Check API key
-  if (GEMINI_API_KEY === "AIzaSyDOsbtYbIHbZFjAfJLnAGEIi7gRnDz0jZY") {
-    addBotMessage("⚠️ AIDA no está configurada aún. Editá chatbot.js y reemplazá 'AIzaSyDOsbtYbIHbZFjAfJLnAGEIi7gRnDz0jZY' con tu Gemini API key de aistudio.google.com");
+  if (GEMINI_API_KEY === "TU_API_KEY_AQUI") {
+    addBotMessage("⚠️ AIDA no está configurada aún. Editá chatbot.js y reemplazá 'TU_API_KEY_AQUI' con tu Gemini API key de aistudio.google.com");
     return;
   }
 
@@ -679,46 +679,57 @@ async function handleSend() {
   sendBtn.disabled = true;
   showTyping();
 
-  try {
-    const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${GEMINI_API_KEY}`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          system_instruction: {
-            parts: [{ text: SEBASTIAN_CONTEXT }]
-          },
-          contents: chatHistory,
-          generationConfig: {
-            temperature: 0.7,
-            maxOutputTokens: 400,
-          }
-        })
-      }
-    );
+  // Modelos en orden de preferencia — AIDA prueba cada uno hasta encontrar uno disponible
+  const MODELS = [
+    "gemini-2.5-flash",
+    "gemini-2.0-flash",
+    "gemini-2.0-flash-lite",
+    "gemini-2.0-flash-001",
+  ];
 
-    if (!response.ok) {
-      const err = await response.json();
-      throw new Error(err.error?.message || 'API error');
+  const body = {
+    system_instruction: { parts: [{ text: SEBASTIAN_CONTEXT }] },
+    contents: chatHistory,
+    generationConfig: { temperature: 0.7, maxOutputTokens: 400 }
+  };
+
+  try {
+    let reply = null;
+    let lastError = null;
+
+    for (const model of MODELS) {
+      try {
+        const response = await fetch(
+          `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${GEMINI_API_KEY}`,
+          { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) }
+        );
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error?.message || 'API error');
+        reply = data.candidates?.[0]?.content?.parts?.[0]?.text || null;
+        if (reply) {
+          console.log('✅ AIDA modelo activo:', model);
+          break;
+        }
+      } catch (e) {
+        console.warn(`⚠️ Modelo ${model} no disponible:`, e.message);
+        lastError = e;
+      }
     }
 
-    const data = await response.json();
-    const reply = data.candidates?.[0]?.content?.parts?.[0]?.text || "I couldn't process that. Please try again.";
+    if (!reply) throw lastError || new Error('No model available');
 
     chatHistory.push({ role: "model", parts: [{ text: reply }] });
-
     removeTyping();
     addBotMessage(reply);
 
   } catch (err) {
     removeTyping();
-    console.error('Chatbot error:', err);
+    console.error('AIDA error:', err);
     const isEs = detectLang(text) === 'es';
     addBotMessage(
       isEs
-        ? `Error al conectar con la API: ${err.message}. Verificá tu API key en aistudio.google.com`
-        : `API connection error: ${err.message}. Please check your API key at aistudio.google.com`
+        ? `AIDA no pudo conectarse. Error: ${err.message}. Verificá tu API key en aistudio.google.com`
+        : `AIDA couldn't connect. Error: ${err.message}. Check your API key at aistudio.google.com`
     );
   } finally {
     sendBtn.disabled = false;
