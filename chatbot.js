@@ -658,7 +658,12 @@ async function handleSend() {
   addUserMessage(text);
   chatHistory.push({ role: "user", parts: [{ text }] });
 
-  // Deshabilitamos controles temporalmente para evitar spam
+  // 1. OPTIMIZACIÓN DE HISTORIAL (Evita saturar la cuota por minuto de tokens en el Free Tier)
+  // Mantenemos solo los últimos 6 mensajes del chat activo para regular la carga de datos.
+  if (chatHistory.length > 6) {
+    chatHistory = chatHistory.slice(-6);
+  }
+
   sendBtn.disabled = true;
   input.disabled = true;
   showTyping();
@@ -666,7 +671,7 @@ async function handleSend() {
   const body = {
     system_instruction: { parts: [{ text: SEBASTIAN_CONTEXT }] },
     contents: chatHistory,
-    generationConfig: { temperature: 0.7, maxOutputTokens: 400 }
+    generationConfig: { temperature: 0.7, maxOutputTokens: 350 }
   };
 
   try {
@@ -690,13 +695,22 @@ async function handleSend() {
     removeTyping();
     console.error('AIDA error:', err);
     const isEs = detectLang(text) === 'es';
-    addBotMessage(
-      isEs
-        ? `AIDA no pudo conectarse. Detalle: ${err.message}`
-        : `AIDA couldn't connect. Detail: ${err.message}`
-    );
+    
+    // 2. CONTROL AMIGABLE DEL ERROR DE ALTA DEMANDA (429 / Quota)
+    if (err.message.includes('demand') || err.message.includes('quota') || err.message.includes('429')) {
+      addBotMessage(
+        isEs
+          ? "¡Hola! Estoy experimentando una alta cantidad de consultas en este momento debido al plan gratuito de Google. Por favor, aguardá unos segundos y volvé a intentarlo 🤙"
+          : "Hi! I'm experiencing high volume right now due to Google's free tier limits. Please wait a few seconds and try again 🤙"
+      );
+    } else {
+      addBotMessage(
+        isEs
+          ? `AIDA no pudo conectarse. Detalle: ${err.message}`
+          : `AIDA couldn't connect. Detail: ${err.message}`
+      );
+    }
   } finally {
-    // Rehabilitación garantizada de la interfaz de usuario
     sendBtn.disabled = false;
     input.disabled = false;
     setTimeout(() => input.focus(), 50);
